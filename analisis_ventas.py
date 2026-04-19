@@ -56,11 +56,18 @@ for prod, datos in precios_por_producto.items():
     }
 
 # --- IMPRESIÓN DE RESULTADOS PARA LA ENTREGA ---
-print(f"1. LISTA DE VENTAS ORIGINAL:\n{ventas}")
-print(f"\n2. INGRESOS TOTALES GENERADOS: ${ingresos_totales_global}")
-print(f"\n3. PRODUCTO MÁS VENDIDO: {producto_mas_vendido} ({ventas_por_producto[producto_mas_vendido]} unidades)")
-print("\n4. PRECIO PROMEDIO POR PRODUCTO:")
+print("--- RESULTADOS DEL ANÁLISIS DE VENTAS ---")
+print(f"1. Ingresos totales globales: ${ingresos_totales_global}")
+print(f"2. Producto más vendido: {producto_mas_vendido} ({ventas_por_producto[producto_mas_vendido]} unidades)")
+print("\n3. Precio promedio por producto:")
 for prod, info in resumen_ventas.items():
-    print(f"   - {prod}: ${info['precio_promedio']:.2 f}")
-print(f"\n5. INGRESOS TOTALES POR DÍA: {ingresos_por_dia}")
-print(f"\n6. RESUMEN DE VENTAS POR PRODUCTO: {resumen_ventas}")
+    # AQUÍ ESTABA EL ERROR: quitamos el espacio en :.2f
+    print(f"   - {prod}: ${info['precio_promedio']:.2f}")
+
+print("\n4. Ingresos totales por día:")
+for fecha, monto in ingresos_por_dia.items():
+    print(f"   - {fecha}: ${monto}")
+
+print("\n5. Resumen detallado por producto:")
+import pprint
+pprint.pprint(resumen_ventas)
