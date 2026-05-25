@@ -1,35 +1,184 @@
-Proyecto 2: Predicción de Calidad del Vino (Módulo Clasificación - Core)
-Propósito: Automatizar la categorización de la calidad organoléptica del vino tinto (Alta calidad vs. Baja calidad) basándose estrictamente en análisis de laboratorio físico-químicos cuantitativos.
+# Clasificación de Calidad de Vino Tinto
 
-Técnicas utilizadas: Mitigación exhaustiva de outliers mediante el método de rango intercuartílico (IQR), binarización estratégica de la variable objetivo y escalado estandarizado.
+## Propósito del proyecto
 
-Modelos evaluados: Regresión Logística, K-Nearest Neighbors (KNN) y Random Forest Classifier.
+Este proyecto tiene como objetivo construir y evaluar modelos de Machine Learning para clasificar vinos tintos según su calidad.  
+A partir de variables físico-químicas del dataset **Wine Quality - Red Wine**, se transforma la variable `quality` en una clasificación binaria:
 
-Métricas clave: Matriz de Confusión, Exactitud (Accuracy), Precisión, Recall, F1-Score y análisis geométrico de Área Bajo la Curva ROC (AUC) alcanzando un 92.1%.
+- `0`: vino de baja o regular calidad (`quality < 6`)
+- `1`: vino de alta calidad (`quality >= 6`)
 
-💻 Instrucciones para la Ejecución del Código
-Para reproducir localmente o de manera en la nube los experimentos realizados en este portafolio, ejecute los siguientes pasos:
+El propósito es comparar distintos algoritmos de clasificación y determinar cuál presenta mejor desempeño para predecir la calidad del vino.
 
-Clonación / Descarga: Descargue los archivos con extensión .ipynb contenidos dentro de las carpetas de interés de este repositorio GitHub.
+## Dataset utilizado
 
-Entorno de Ejecución: Acceda a Google Colab e importe los cuadernos correspondientes.
+Se utiliza el dataset público de calidad de vino tinto de UCI Machine Learning Repository:
 
-Procesamiento: Ejecute las celdas de forma secuencial (Entorno de ejecución > Ejecutar todas). Los conjuntos de datos (datasets) se descargarán e inicializarán de forma autónoma mediante URLs integradas directamente en el código fuente de los scripts.
+```python
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
+```
 
+El dataset contiene variables físico-químicas como:
 
----
+- acidez fija
+- acidez volátil
+- ácido cítrico
+- azúcar residual
+- cloruros
+- dióxido de azufre libre
+- dióxido de azufre total
+- densidad
+- pH
+- sulfatos
+- alcohol
+- calidad
 
-### 📝 2. Contenido Incluido en el PDF de Hallazgos y Conclusiones
+## Técnicas utilizadas
 
-El informe ejecutivo generado en PDF posee un diseño de editorial corporativa con una paleta azul marino desaturada y gris pizarra, diseñado especialmente para revisiones de nivel docente o portafolio laboral. Su estructura aborda de manera profunda los siguientes puntos técnicos:
+### 1. Análisis exploratorio de datos
 
-1.  **Introducción General:** Marco teórico sobre el uso de arquitecturas de aprendizaje supervisado en problemas de negocio.
-2.  **Análisis del Módulo de Regresión (Autos):**
-    * Explicación del impacto del preprocesamiento y escalado de datos para evitar sesgos dimensionales.
-    * **Cuadro de Métricas:** Tabla comparativa entre la Regresión Lineal Baseline ($R^2 = 0.682$) y Random Forest Regressor ($R^2 = 0.895$), concluyendo cómo las estructuras de ensamble capturan eficientemente interacciones de datos no lineales.
-3.  **Análisis del Módulo de Clasificación Core (Vinos):**
-    * Detalle del tratamiento de outliers químicos con el Rango Intercuartílico (IQR) para blindar la estabilidad de los vectores del algoritmo KNN.
-    * **Tabla Comparativa Multimétrica:** Comparación de Exactitud, F1-Score y ROC AUC entre Regresión Logística, KNN y Random Forest Classifier (Ganador con un 86.4% de Exactitud y 92.1% de AUC).
-    * **Hallazgo del Negocio:** Explicación analítica sobre cómo los factores de concentración de alcohol y acidez volátil gobiernan el 45% del peso predictivo de las muestras vinícolas.
-4.  **Recomendaciones para Producción:** Propuesta de arquitectura técnica para la exportación y serialización de los modelos mediante archivos `.joblib` en microservicios web.
+Se realiza una revisión inicial del dataset, incluyendo:
 
+- dimensiones del dataset
+- primeros registros
+- distribución de la variable objetivo
+- revisión de clases para clasificación binaria
+
+### 2. Tratamiento de outliers
+
+Se aplica mitigación de valores extremos en la variable `total sulfur dioxide` mediante capping por rango intercuartílico (IQR).
+
+### 3. Transformación de variable objetivo
+
+La variable original `quality` se transforma en una variable binaria llamada `quality_label`.
+
+```python
+df["quality_label"] = (df["quality"] >= 6).astype(int)
+```
+
+### 4. División de datos
+
+Se divide el dataset en:
+
+- 80% entrenamiento
+- 20% prueba
+
+La división se realiza con estratificación para conservar la proporción de clases.
+
+### 5. Escalado de variables
+
+Se utiliza `StandardScaler` para normalizar las variables predictoras.  
+Esto es especialmente importante para modelos como KNN y Regresión Logística.
+
+### 6. Modelos entrenados
+
+Se entrenan y comparan tres algoritmos de clasificación:
+
+- Regresión Logística
+- K-Nearest Neighbors (KNN)
+- Random Forest Classifier
+
+### 7. Optimización de hiperparámetros
+
+Se utiliza `GridSearchCV` con validación cruzada de 5 folds, optimizando según `f1-score`.
+
+### 8. Evaluación del modelo
+
+Los modelos se evalúan con:
+
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- Matriz de confusión
+- Curva ROC
+- AUC
+
+## Cómo ejecutar el proyecto
+
+### 1. Clonar el repositorio
+
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd <NOMBRE_DEL_REPOSITORIO>
+```
+
+### 2. Crear un entorno virtual
+
+```bash
+python -m venv venv
+```
+
+Activar el entorno:
+
+En Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+En macOS/Linux:
+
+```bash
+source venv/bin/activate
+```
+
+### 3. Instalar dependencias
+
+```bash
+pip install numpy pandas matplotlib seaborn scikit-learn
+```
+
+### 4. Ejecutar el notebook o script
+
+Si el código está en un archivo `.py`:
+
+```bash
+python main.py
+```
+
+Si está en un notebook:
+
+```bash
+jupyter notebook
+```
+
+Luego abrir el archivo correspondiente y ejecutar las celdas en orden.
+
+## Resultados esperados
+
+El proyecto genera:
+
+- tabla comparativa de métricas entre modelos
+- matrices de confusión
+- curva ROC del modelo Random Forest
+- comparación del desempeño de los algoritmos
+- conclusiones sobre el mejor modelo para la clasificación
+
+## Conclusiones principales
+
+- La variable `quality` fue transformada correctamente en una variable binaria para clasificación.
+- El escalado de variables permite mejorar el desempeño de modelos sensibles a la escala, como KNN y Regresión Logística.
+- Random Forest suele ser el modelo más robusto para este problema, ya que captura relaciones no lineales entre variables físico-químicas.
+- El uso de métricas como F1-score, recall y AUC permite evaluar el desempeño más allá de la exactitud.
+- El análisis permite identificar qué modelo resulta más adecuado para clasificar vinos de alta y baja calidad.
+
+## Estructura sugerida del repositorio
+
+```text
+proyecto-calidad-vino/
+│
+├── informe_analisis_calidad_vino.ipynb
+├── README.md
+└── informe_analisis_calidad_vino.pdf
+```
+
+## Dependencias
+
+```text
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+```
